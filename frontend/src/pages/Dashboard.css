@@ -47,7 +47,7 @@ select {
 }
 
 .dashboard__brand,
-.dashboard__nav-links a {
+.dashboard__nav-links button {
   color: #1b2738;
   text-decoration: none;
 }
@@ -80,15 +80,18 @@ select {
   background: #f5f8fb;
 }
 
-.dashboard__nav-links a {
+.dashboard__nav-links button {
   padding: 8px 12px;
+  border: 0;
   border-radius: 6px;
+  background: transparent;
   color: #5d6d80;
+  cursor: pointer;
   font-size: 0.92rem;
   font-weight: 700;
 }
 
-.dashboard__nav-links a:first-child {
+.dashboard__nav-links button.is-active {
   background: #ffffff;
   color: #10243d;
   box-shadow: 0 6px 16px rgba(22, 36, 56, 0.08);

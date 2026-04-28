@@ -1,8 +1,28 @@
 import { useMemo, useState } from "react";
 import Dashboard from "./pages/Dashboard";
+import BudgetPage from "./pages/BudgetPage";
 import "./App.css";
 
 const USERS_KEY = "finance-tracker-users";
+const AUTH_TOKEN_KEY = "finance-tracker-token";
+
+async function requestAuth(path, payload) {
+  const response = await fetch(`/api/auth/${path}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const error = new Error("Authentication failed");
+    error.status = response.status;
+    throw error;
+  }
+
+  return response.json();
+}
 
 function getStoredUsers() {
   try {
@@ -60,7 +80,7 @@ function LoginPage({ onLogin, onSwitch }) {
   const [loading, setLoading] = useState(false);
   const [demoLoading, setDemoLoading] = useState(false);
 
-  const isValid = /^\S+@\S+\.\S+$/.test(form.email) && form.password.length >= 6;
+  const isValid = /^\S+@\S+\.\S+$/.test(form.email) && form.password.length >= 8;
 
   function updateForm(event) {
     const { checked, name, type, value } = event.target;
@@ -77,22 +97,37 @@ function LoginPage({ onLogin, onSwitch }) {
 
     setLoading(true);
 
-    window.setTimeout(() => {
-      const user = getStoredUsers().find(
-        (storedUser) =>
-          storedUser.email.toLowerCase() === form.email.toLowerCase() &&
-          storedUser.password === form.password
-      );
-
-      if (!user) {
-        setError("Invalid email or password");
+    requestAuth("login", {
+      email: form.email.trim(),
+      password: form.password,
+    })
+      .then(({ token }) => {
+        localStorage.setItem(AUTH_TOKEN_KEY, token);
+        onLogin({ email: form.email.trim(), name: "User", token });
         setLoading(false);
-        return;
-      }
+      })
+      .catch((authError) => {
+        if (authError.status) {
+          setError("Invalid email or password");
+          setLoading(false);
+          return;
+        }
 
-      onLogin({ email: user.email, name: user.name || "User" });
-      setLoading(false);
-    }, 650);
+        const user = getStoredUsers().find(
+          (storedUser) =>
+            storedUser.email.toLowerCase() === form.email.toLowerCase() &&
+            storedUser.password === form.password
+        );
+
+        if (!user) {
+          setError("Invalid email or password");
+          setLoading(false);
+          return;
+        }
+
+        onLogin({ email: user.email, name: user.name || "User" });
+        setLoading(false);
+      });
   }
 
   function handleDemoLogin() {
@@ -102,6 +137,7 @@ function LoginPage({ onLogin, onSwitch }) {
     setDemoLoading(true);
 
     window.setTimeout(() => {
+      localStorage.removeItem(AUTH_TOKEN_KEY);
       onLogin({
         email: "demo@finsight.app",
         name: "Demo User",
@@ -248,18 +284,32 @@ function SignupPage({ onSignup, onSwitch }) {
 
     setLoading(true);
 
-    window.setTimeout(() => {
-      const newUser = {
-        email: form.email.trim(),
-        name: form.name.trim(),
-        password: form.password,
-      };
+    const newUser = {
+      email: form.email.trim(),
+      name: form.name.trim(),
+      password: form.password,
+    };
 
-      const users = [...getStoredUsers(), newUser];
-      localStorage.setItem(USERS_KEY, JSON.stringify(users));
-      onSignup({ email: newUser.email, name: newUser.name });
-      setLoading(false);
-    }, 700);
+    requestAuth("signup", newUser)
+      .then(({ token }) => {
+        localStorage.setItem(AUTH_TOKEN_KEY, token);
+        const users = [...getStoredUsers(), newUser];
+        localStorage.setItem(USERS_KEY, JSON.stringify(users));
+        onSignup({ email: newUser.email, name: newUser.name, token });
+        setLoading(false);
+      })
+      .catch((authError) => {
+        if (authError.status) {
+          setErrors({ email: "Could not create account with this email" });
+          setLoading(false);
+          return;
+        }
+
+        const users = [...getStoredUsers(), newUser];
+        localStorage.setItem(USERS_KEY, JSON.stringify(users));
+        onSignup({ email: newUser.email, name: newUser.name });
+        setLoading(false);
+      });
   }
 
   return (
@@ -339,10 +389,33 @@ function SignupPage({ onSignup, onSwitch }) {
 
 export default function App() {
   const [authView, setAuthView] = useState("login");
+  const [page, setPage] = useState("dashboard");
   const [user, setUser] = useState(null);
 
   if (user) {
-    return <Dashboard onLogout={() => setUser(null)} user={user} />;
+    const handleLogout = () => {
+      localStorage.removeItem(AUTH_TOKEN_KEY);
+      setUser(null);
+      setPage("dashboard");
+    };
+
+    if (page === "budgets") {
+      return (
+        <BudgetPage
+          onLogout={handleLogout}
+          onNavigate={setPage}
+          user={user}
+        />
+      );
+    }
+
+    return (
+      <Dashboard
+        onLogout={handleLogout}
+        onNavigate={setPage}
+        user={user}
+      />
+    );
   }
 
   return (
@@ -359,6 +432,17 @@ export default function App() {
             Monitor expenses, savings, assets, and alerts from a dashboard built
             for quick daily decisions.
           </p>
+        </div>
+
+        <div className="auth-proof">
+          <div>
+            <strong>₹2.1L</strong>
+            <span>net worth tracked</span>
+          </div>
+          <div>
+            <strong>72/100</strong>
+            <span>health score</span>
+          </div>
         </div>
       </section>
 

@@ -7,7 +7,7 @@ import QuickActions from "../components/QuickActions.jsx";
 import "./Dashboard.css";
 import "../components/DashboardComponents.css";
 
-export default function Dashboard({ onLogout, user }) {
+export default function Dashboard({ onLogout, onNavigate, user }) {
   return (
     <main className="dashboard">
       <div className="dashboard__shell">
@@ -18,9 +18,17 @@ export default function Dashboard({ onLogout, user }) {
           </a>
 
           <div className="dashboard__nav-links" aria-label="Dashboard navigation">
-            <a href="/">Overview</a>
-            <a href="/">Budgets</a>
-            <a href="/">Reports</a>
+          <button
+            className="is-active"
+            onClick={() => onNavigate("dashboard")}
+            type="button"
+          >
+              Overview
+            </button>
+            <button onClick={() => onNavigate("budgets")} type="button">
+              Budgets
+            </button>
+            <button type="button">Reports</button>
           </div>
 
           <button className="dashboard__period" type="button">
@@ -62,7 +70,7 @@ export default function Dashboard({ onLogout, user }) {
 
         <section className="dashboard__grid dashboard__grid--bottom">
           <AssetsCard />
-          <QuickActions />
+          <QuickActions onNavigate={onNavigate} />
         </section>
       </div>
     </main>
