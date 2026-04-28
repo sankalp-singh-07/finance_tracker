@@ -25,7 +25,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/emis")
+@RequestMapping({"/api/emis", "/api/v1/emis"})
 @Validated
 @RequiredArgsConstructor
 public class EmiController {

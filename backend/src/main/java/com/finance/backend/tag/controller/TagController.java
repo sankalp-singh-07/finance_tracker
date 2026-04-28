@@ -21,7 +21,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/tags")
+@RequestMapping({"/api/tags", "/api/v1/tags"})
 @Validated
 @RequiredArgsConstructor
 public class TagController {

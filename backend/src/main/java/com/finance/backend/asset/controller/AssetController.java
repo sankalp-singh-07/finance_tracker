@@ -25,7 +25,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/assets")
+@RequestMapping({"/api/assets", "/api/v1/assets"})
 @Validated
 @RequiredArgsConstructor
 public class AssetController {

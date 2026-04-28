@@ -23,7 +23,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/recurring-transactions")
+@RequestMapping({"/api/recurring-transactions", "/api/v1/recurring-transactions"})
 @Validated
 @RequiredArgsConstructor
 public class RecurringTransactionController {
