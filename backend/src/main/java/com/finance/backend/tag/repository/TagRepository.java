@@ -1,6 +1,7 @@
 package com.finance.backend.tag.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -10,7 +11,11 @@ public interface TagRepository extends JpaRepository<Tag, Long> {
 
     List<Tag> findByUser_IdOrderByNameAsc(Long userId);
 
+    Optional<Tag> findByIdAndUser_Id(Long id, Long userId);
+
     List<Tag> findByUser_IdAndIdIn(Long userId, List<Long> ids);
 
     boolean existsByUser_IdAndNameIgnoreCase(Long userId, String name);
+
+    boolean existsByUser_IdAndNameIgnoreCaseAndIdNot(Long userId, String name, Long id);
 }

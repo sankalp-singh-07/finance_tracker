@@ -5,10 +5,12 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -51,5 +53,28 @@ public class EmiController {
     @GetMapping
     public List<EmiResponse> getEmis(@AuthenticationPrincipal AuthenticatedUserPrincipal currentUser) {
         return emiService.getEmis(currentUser.getId());
+    }
+
+    @GetMapping("/{emiId}")
+    public EmiResponse getEmi(
+            @AuthenticationPrincipal AuthenticatedUserPrincipal currentUser,
+            @PathVariable @Positive Long emiId) {
+        return emiService.getEmi(currentUser.getId(), emiId);
+    }
+
+    @PutMapping("/{emiId}")
+    public EmiResponse updateEmi(
+            @AuthenticationPrincipal AuthenticatedUserPrincipal currentUser,
+            @PathVariable @Positive Long emiId,
+            @Valid @RequestBody EmiRequest request) {
+        return emiService.updateEmi(currentUser.getId(), emiId, request);
+    }
+
+    @DeleteMapping("/{emiId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteEmi(
+            @AuthenticationPrincipal AuthenticatedUserPrincipal currentUser,
+            @PathVariable @Positive Long emiId) {
+        emiService.deleteEmi(currentUser.getId(), emiId);
     }
 }

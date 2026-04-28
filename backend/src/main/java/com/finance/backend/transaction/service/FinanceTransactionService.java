@@ -81,6 +81,30 @@ public class FinanceTransactionService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public TransactionResponse getTransaction(Long userId, Long transactionId) {
+        FinanceTransaction transaction = transactionRepository.findByIdAndUser_Id(transactionId, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Transaction not found for user"));
+        return mapToResponse(transaction);
+    }
+
+    @Transactional
+    public TransactionResponse updateTransaction(Long userId, Long transactionId, TransactionRequest request) {
+        FinanceTransaction transaction = transactionRepository.findByIdAndUser_Id(transactionId, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Transaction not found for user"));
+        Category category = categoryService.getAccessibleCategory(request.categoryId(), userId);
+        validateTransactionType(category, request.type());
+        List<Tag> tags = tagService.getTagsForUser(userId, request.tagIds());
+
+        transaction.setAmount(request.amount());
+        transaction.setType(request.type());
+        transaction.setCategory(category);
+        transaction.setTags(new LinkedHashSet<>(tags));
+        transaction.setDate(request.date());
+        transaction.setNote(request.note() == null ? null : request.note().trim());
+        return mapToResponse(transactionRepository.save(transaction));
+    }
+
     @Transactional
     public void deleteTransaction(Long userId, Long transactionId) {
         FinanceTransaction transaction = transactionRepository.findByIdAndUser_Id(transactionId, userId)

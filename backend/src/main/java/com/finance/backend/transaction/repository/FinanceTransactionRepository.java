@@ -62,4 +62,8 @@ public interface FinanceTransactionRepository
             Pageable pageable);
 
     List<FinanceTransaction> findByUser_IdAndTypeAndDateBetween(Long userId, TransactionType type, LocalDate startDate, LocalDate endDate);
+
+    boolean existsByUser_IdAndCategory_Id(Long userId, Long categoryId);
+
+    boolean existsByUser_IdAndTags_Id(Long userId, Long tagId);
 }

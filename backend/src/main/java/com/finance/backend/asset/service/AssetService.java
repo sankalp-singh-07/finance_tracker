@@ -44,11 +44,37 @@ public class AssetService {
         return mapToResponse(assetRepository.save(asset));
     }
 
+    @Transactional
+    public AssetResponse updateAsset(Long userId, Long assetId, AssetRequest request) {
+        Asset asset = assetRepository.findByIdAndUserId(assetId, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Asset not found for user"));
+
+        asset.setName(request.name().trim());
+        asset.setType(request.type());
+        asset.setValue(request.value());
+        asset.setLastUpdated(LocalDateTime.now());
+        return mapToResponse(assetRepository.save(asset));
+    }
+
     @Transactional(readOnly = true)
     public List<AssetResponse> getAssets(Long userId) {
         return assetRepository.findByUserIdOrderByLastUpdatedDesc(userId).stream()
                 .map(this::mapToResponse)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public AssetResponse getAsset(Long userId, Long assetId) {
+        Asset asset = assetRepository.findByIdAndUserId(assetId, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Asset not found for user"));
+        return mapToResponse(asset);
+    }
+
+    @Transactional
+    public void deleteAsset(Long userId, Long assetId) {
+        Asset asset = assetRepository.findByIdAndUserId(assetId, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Asset not found for user"));
+        assetRepository.delete(asset);
     }
 
     private AssetResponse mapToResponse(Asset asset) {

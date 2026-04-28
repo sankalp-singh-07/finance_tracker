@@ -16,6 +16,7 @@ import com.finance.backend.category.model.Category;
 import com.finance.backend.category.service.CategoryService;
 import com.finance.backend.common.enums.TransactionType;
 import com.finance.backend.common.exception.BadRequestException;
+import com.finance.backend.common.exception.ResourceNotFoundException;
 import com.finance.backend.transaction.service.FinanceTransactionService;
 
 import lombok.RequiredArgsConstructor;
@@ -68,6 +69,13 @@ public class BudgetService {
         Budget budget = budgetRepository.findByUserIdAndCategory_IdAndMonth(userId, categoryId, month)
                 .orElseThrow(() -> new BadRequestException("Budget not found for user, category, and month"));
         return mapToResponse(budget);
+    }
+
+    @Transactional
+    public void deleteBudget(Long userId, Long budgetId) {
+        Budget budget = budgetRepository.findByIdAndUserId(budgetId, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Budget not found for user"));
+        budgetRepository.delete(budget);
     }
 
     private YearMonth parseMonth(String month) {

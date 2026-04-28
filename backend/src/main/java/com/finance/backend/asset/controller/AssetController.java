@@ -5,10 +5,12 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -51,5 +53,28 @@ public class AssetController {
     @GetMapping
     public List<AssetResponse> getAssets(@AuthenticationPrincipal AuthenticatedUserPrincipal currentUser) {
         return assetService.getAssets(currentUser.getId());
+    }
+
+    @GetMapping("/{assetId}")
+    public AssetResponse getAsset(
+            @AuthenticationPrincipal AuthenticatedUserPrincipal currentUser,
+            @PathVariable @Positive Long assetId) {
+        return assetService.getAsset(currentUser.getId(), assetId);
+    }
+
+    @PutMapping("/{assetId}")
+    public AssetResponse updateAsset(
+            @AuthenticationPrincipal AuthenticatedUserPrincipal currentUser,
+            @PathVariable @Positive Long assetId,
+            @Valid @RequestBody AssetRequest request) {
+        return assetService.updateAsset(currentUser.getId(), assetId, request);
+    }
+
+    @DeleteMapping("/{assetId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteAsset(
+            @AuthenticationPrincipal AuthenticatedUserPrincipal currentUser,
+            @PathVariable @Positive Long assetId) {
+        assetService.deleteAsset(currentUser.getId(), assetId);
     }
 }

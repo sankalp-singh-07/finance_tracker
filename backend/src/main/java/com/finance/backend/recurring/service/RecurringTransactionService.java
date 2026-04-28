@@ -12,6 +12,7 @@ import com.finance.backend.category.dto.CategoryResponse;
 import com.finance.backend.category.model.Category;
 import com.finance.backend.category.service.CategoryService;
 import com.finance.backend.common.enums.RecurringFrequency;
+import com.finance.backend.common.exception.ResourceNotFoundException;
 import com.finance.backend.recurring.dto.RecurringGenerationRequest;
 import com.finance.backend.recurring.dto.RecurringTransactionRequest;
 import com.finance.backend.recurring.dto.RecurringTransactionResponse;
@@ -52,6 +53,40 @@ public class RecurringTransactionService {
         return recurringTransactionRepository.findByUser_IdOrderByNextExecutionDateAsc(userId).stream()
                 .map(this::mapToResponse)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public RecurringTransactionResponse getRecurringTransaction(Long userId, Long recurringTransactionId) {
+        RecurringTransaction recurringTransaction =
+                recurringTransactionRepository.findByIdAndUser_Id(recurringTransactionId, userId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Recurring transaction not found for user"));
+        return mapToResponse(recurringTransaction);
+    }
+
+    @Transactional
+    public RecurringTransactionResponse updateRecurringTransaction(
+            Long userId,
+            Long recurringTransactionId,
+            RecurringTransactionRequest request) {
+        RecurringTransaction recurringTransaction =
+                recurringTransactionRepository.findByIdAndUser_Id(recurringTransactionId, userId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Recurring transaction not found for user"));
+        Category category = categoryService.getAccessibleCategory(request.categoryId(), userId);
+
+        recurringTransaction.setAmount(request.amount());
+        recurringTransaction.setCategory(category);
+        recurringTransaction.setFrequency(request.frequency());
+        recurringTransaction.setNextExecutionDate(request.nextExecutionDate());
+        recurringTransaction.setNote(request.note() == null ? null : request.note().trim());
+        return mapToResponse(recurringTransactionRepository.save(recurringTransaction));
+    }
+
+    @Transactional
+    public void deleteRecurringTransaction(Long userId, Long recurringTransactionId) {
+        RecurringTransaction recurringTransaction =
+                recurringTransactionRepository.findByIdAndUser_Id(recurringTransactionId, userId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Recurring transaction not found for user"));
+        recurringTransactionRepository.delete(recurringTransaction);
     }
 
     @Transactional

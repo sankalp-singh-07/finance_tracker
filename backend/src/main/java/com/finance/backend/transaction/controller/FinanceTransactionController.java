@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -51,6 +52,21 @@ public class FinanceTransactionController {
             @RequestParam(required = false) @Positive Long categoryId,
             @RequestParam(required = false) TransactionType type) {
         return transactionService.getTransactions(currentUser.getId(), startDate, endDate, categoryId, type);
+    }
+
+    @GetMapping("/{transactionId}")
+    public TransactionResponse getTransaction(
+            @AuthenticationPrincipal AuthenticatedUserPrincipal currentUser,
+            @PathVariable @Positive Long transactionId) {
+        return transactionService.getTransaction(currentUser.getId(), transactionId);
+    }
+
+    @PutMapping("/{transactionId}")
+    public TransactionResponse updateTransaction(
+            @AuthenticationPrincipal AuthenticatedUserPrincipal currentUser,
+            @PathVariable @Positive Long transactionId,
+            @Valid @RequestBody TransactionRequest request) {
+        return transactionService.updateTransaction(currentUser.getId(), transactionId, request);
     }
 
     @DeleteMapping("/{transactionId}")

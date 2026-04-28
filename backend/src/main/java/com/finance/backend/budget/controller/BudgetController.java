@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -53,5 +54,13 @@ public class BudgetController {
             @PathVariable @Positive Long categoryId,
             @RequestParam @Pattern(regexp = "^\\d{4}-\\d{2}$") String month) {
         return budgetService.getBudget(currentUser.getId(), categoryId, month);
+    }
+
+    @DeleteMapping("/{budgetId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteBudget(
+            @AuthenticationPrincipal AuthenticatedUserPrincipal currentUser,
+            @PathVariable @Positive Long budgetId) {
+        budgetService.deleteBudget(currentUser.getId(), budgetId);
     }
 }

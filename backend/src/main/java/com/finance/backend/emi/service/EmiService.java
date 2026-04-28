@@ -56,11 +56,42 @@ public class EmiService {
         return mapToResponse(emiRepository.save(emi));
     }
 
+    @Transactional
+    public EmiResponse updateEmi(Long userId, Long emiId, EmiRequest request) {
+        Emi emi = emiRepository.findByIdAndUser_Id(emiId, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("EMI not found for user"));
+        if (request.remainingAmount().compareTo(request.totalAmount()) > 0) {
+            throw new BadRequestException("Remaining amount cannot exceed total amount");
+        }
+
+        emi.setName(request.name().trim());
+        emi.setTotalAmount(request.totalAmount());
+        emi.setMonthlyEmi(request.monthlyEmi());
+        emi.setRemainingAmount(request.remainingAmount());
+        emi.setInterestRate(request.interestRate());
+        emi.setStartDate(request.startDate());
+        return mapToResponse(emiRepository.save(emi));
+    }
+
     @Transactional(readOnly = true)
     public List<EmiResponse> getEmis(Long userId) {
         return emiRepository.findByUser_IdOrderByStartDateAsc(userId).stream()
                 .map(this::mapToResponse)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public EmiResponse getEmi(Long userId, Long emiId) {
+        Emi emi = emiRepository.findByIdAndUser_Id(emiId, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("EMI not found for user"));
+        return mapToResponse(emi);
+    }
+
+    @Transactional
+    public void deleteEmi(Long userId, Long emiId) {
+        Emi emi = emiRepository.findByIdAndUser_Id(emiId, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("EMI not found for user"));
+        emiRepository.delete(emi);
     }
 
     private EmiResponse mapToResponse(Emi emi) {
