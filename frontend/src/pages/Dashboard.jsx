@@ -7,7 +7,7 @@ import QuickActions from "../components/QuickActions.jsx";
 import "./Dashboard.css";
 import "../components/DashboardComponents.css";
 
-export default function Dashboard() {
+export default function Dashboard({ onLogout, user }) {
   return (
     <main className="dashboard">
       <div className="dashboard__shell">
@@ -26,6 +26,10 @@ export default function Dashboard() {
           <button className="dashboard__period" type="button">
             This Month
           </button>
+
+          <button className="dashboard__logout" onClick={onLogout} type="button">
+            Logout
+          </button>
         </nav>
 
         <header className="dashboard__header">
@@ -40,7 +44,7 @@ export default function Dashboard() {
 
           <div className="dashboard__profile">
             <span>Welcome back</span>
-            <strong>User</strong>
+            <strong>{user?.name || "User"}</strong>
             <small>Health score 72/100</small>
           </div>
         </header>

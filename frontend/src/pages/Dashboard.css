@@ -94,7 +94,8 @@ select {
   box-shadow: 0 6px 16px rgba(22, 36, 56, 0.08);
 }
 
-.dashboard__period {
+.dashboard__period,
+.dashboard__logout {
   min-height: 38px;
   padding: 0 14px;
   border: 1px solid rgba(91, 110, 132, 0.18);
@@ -103,6 +104,17 @@ select {
   color: #233249;
   cursor: pointer;
   font-weight: 800;
+}
+
+.dashboard__logout {
+  border-color: rgba(194, 65, 65, 0.18);
+  background: #fff5f5;
+  color: #b4232f;
+}
+
+.dashboard__logout:hover {
+  border-color: rgba(194, 65, 65, 0.34);
+  background: #ffe8e8;
 }
 
 .dashboard__header {
@@ -203,6 +215,10 @@ select {
   }
 
   .dashboard__period {
+    width: 100%;
+  }
+
+  .dashboard__logout {
     width: 100%;
   }
 
