@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import ReportPage from "./pages/ReportPage";
 import Dashboard from "./pages/Dashboard";
 import BudgetPage from "./pages/BudgetPage";
 import "./App.css";
@@ -408,6 +409,15 @@ export default function App() {
         />
       );
     }
+    if (page === "reports") {
+  return (
+    <ReportPage
+      onLogout={handleLogout}
+      onNavigate={setPage}
+      user={user}
+    />
+  );
+}
 
     return (
       <Dashboard

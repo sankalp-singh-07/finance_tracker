@@ -228,7 +228,9 @@ export default function BudgetPage({ onLogout, onNavigate, user }) {
             <button className="is-active" type="button">
               Budgets
             </button>
-            <button type="button">Reports</button>
+            <button onClick={() => onNavigate("reports")} type="button">
+  Reports
+</button>
           </div>
 
           <label className="budget-month">

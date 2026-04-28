@@ -28,7 +28,9 @@ export default function Dashboard({ onLogout, onNavigate, user }) {
             <button onClick={() => onNavigate("budgets")} type="button">
               Budgets
             </button>
-            <button type="button">Reports</button>
+           <button onClick={() => onNavigate("reports")} type="button">
+  Reports
+</button>
           </div>
 
           <button className="dashboard__period" type="button">
