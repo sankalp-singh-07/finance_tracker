@@ -26,25 +26,33 @@ public class JwtUtil {
         this.expirationInMillis = expirationInMillis;
     }
 
-    public String generateToken(String username) {
+    public String generateToken(Long userId, String email) {
         Date now = new Date();
         Date expiration = new Date(now.getTime() + expirationInMillis);
 
         return Jwts.builder()
-                .subject(username)
+                .subject(String.valueOf(userId))
+                .claim("email", email)
                 .issuedAt(now)
                 .expiration(expiration)
                 .signWith(signingKey)
                 .compact();
     }
 
-    public String extractUsername(String token) {
-        return extractAllClaims(token).getSubject();
+    public Long extractUserId(String token) {
+        return Long.valueOf(extractAllClaims(token).getSubject());
     }
 
-    public boolean isTokenValid(String token, UserDetails userDetails) {
-        String username = extractUsername(token);
-        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+    public String extractEmail(String token) {
+        return extractAllClaims(token).get("email", String.class);
+    }
+
+    public boolean isTokenValid(String token, AuthenticatedUserPrincipal userPrincipal) {
+        Long userId = extractUserId(token);
+        String email = extractEmail(token);
+        return userId.equals(userPrincipal.getId())
+                && email.equals(userPrincipal.getEmail())
+                && !isTokenExpired(token);
     }
 
     private boolean isTokenExpired(String token) {

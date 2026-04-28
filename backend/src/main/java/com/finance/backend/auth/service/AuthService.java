@@ -41,9 +41,9 @@ public class AuthService {
                 .email(normalizedEmail)
                 .password(passwordEncoder.encode(request.password()))
                 .build();
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
 
-        String token = jwtUtil.generateToken(normalizedEmail);
+        String token = jwtUtil.generateToken(savedUser.getId(), savedUser.getEmail());
         return AuthResponseDTO.builder()
                 .token(token)
                 .build();
@@ -59,7 +59,10 @@ public class AuthService {
             throw new BadCredentialsException("Invalid email or password");
         }
 
-        String token = jwtUtil.generateToken(normalizedEmail);
+        User user = userRepository.findByEmail(normalizedEmail)
+                .orElseThrow(() -> new BadCredentialsException("Invalid email or password"));
+
+        String token = jwtUtil.generateToken(user.getId(), user.getEmail());
         return AuthResponseDTO.builder()
                 .token(token)
                 .build();
