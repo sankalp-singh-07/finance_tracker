@@ -7,7 +7,7 @@ import QuickActions from "../components/QuickActions.jsx";
 import "./Dashboard.css";
 import "../components/DashboardComponents.css";
 
-export default function Dashboard() {
+export default function Dashboard({ onLogout, onNavigate, user }) {
   return (
     <main className="dashboard">
       <div className="dashboard__shell">
@@ -18,13 +18,27 @@ export default function Dashboard() {
           </a>
 
           <div className="dashboard__nav-links" aria-label="Dashboard navigation">
-            <a href="/">Overview</a>
-            <a href="/">Budgets</a>
-            <a href="/">Reports</a>
+          <button
+            className="is-active"
+            onClick={() => onNavigate("dashboard")}
+            type="button"
+          >
+              Overview
+            </button>
+            <button onClick={() => onNavigate("budgets")} type="button">
+              Budgets
+            </button>
+           <button onClick={() => onNavigate("reports")} type="button">
+  Reports
+</button>
           </div>
 
           <button className="dashboard__period" type="button">
             This Month
+          </button>
+
+          <button className="dashboard__logout" onClick={onLogout} type="button">
+            Logout
           </button>
         </nav>
 
@@ -40,7 +54,7 @@ export default function Dashboard() {
 
           <div className="dashboard__profile">
             <span>Welcome back</span>
-            <strong>User</strong>
+            <strong>{user?.name || "User"}</strong>
             <small>Health score 72/100</small>
           </div>
         </header>
@@ -58,7 +72,7 @@ export default function Dashboard() {
 
         <section className="dashboard__grid dashboard__grid--bottom">
           <AssetsCard />
-          <QuickActions />
+          <QuickActions onNavigate={onNavigate} />
         </section>
       </div>
     </main>
