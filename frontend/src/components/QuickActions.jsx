@@ -1,4 +1,4 @@
-export default function QuickActions() {
+export default function QuickActions({ onNavigate }) {
   return (
     <article className="dashboard-card quick-actions-card">
       <h2>Quick Actions</h2>
@@ -8,7 +8,11 @@ export default function QuickActions() {
           + Transaction
         </button>
 
-        <button className="quick-action quick-action--success">
+        <button
+          className="quick-action quick-action--success"
+          onClick={() => onNavigate("budgets")}
+          type="button"
+        >
           + Budget
         </button>
 
