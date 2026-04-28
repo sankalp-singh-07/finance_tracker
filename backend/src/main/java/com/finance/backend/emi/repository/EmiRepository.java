@@ -9,7 +9,7 @@ import com.finance.backend.emi.model.Emi;
 
 public interface EmiRepository extends JpaRepository<Emi, Long> {
 
-    List<Emi> findByUserIdOrderByStartDateAsc(Long userId);
+    List<Emi> findByUser_IdOrderByStartDateAsc(Long userId);
 
-    Optional<Emi> findByIdAndUserId(Long id, Long userId);
+    Optional<Emi> findByIdAndUser_Id(Long id, Long userId);
 }

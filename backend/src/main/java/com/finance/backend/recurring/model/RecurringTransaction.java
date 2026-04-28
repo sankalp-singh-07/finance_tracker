@@ -3,6 +3,7 @@ package com.finance.backend.recurring.model;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import com.finance.backend.auth.model.User;
 import com.finance.backend.category.model.Category;
 import com.finance.backend.common.enums.RecurringFrequency;
 
@@ -53,6 +54,7 @@ public class RecurringTransaction {
     @Column(length = 500)
     private String note;
 
-    @Column(nullable = false)
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 }

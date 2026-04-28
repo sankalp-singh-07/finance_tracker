@@ -8,9 +8,9 @@ import com.finance.backend.tag.model.Tag;
 
 public interface TagRepository extends JpaRepository<Tag, Long> {
 
-    List<Tag> findByUserIdOrderByNameAsc(Long userId);
+    List<Tag> findByUser_IdOrderByNameAsc(Long userId);
 
-    List<Tag> findByUserIdAndIdIn(Long userId, List<Long> ids);
+    List<Tag> findByUser_IdAndIdIn(Long userId, List<Long> ids);
 
-    boolean existsByUserIdAndNameIgnoreCase(Long userId, String name);
+    boolean existsByUser_IdAndNameIgnoreCase(Long userId, String name);
 }

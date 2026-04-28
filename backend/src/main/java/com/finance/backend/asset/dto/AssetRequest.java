@@ -7,7 +7,6 @@ import com.finance.backend.common.enums.AssetType;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
 public record AssetRequest(
@@ -18,8 +17,5 @@ public record AssetRequest(
         AssetType type,
         @NotNull(message = "Asset value is required")
         @DecimalMin(value = "0.00", inclusive = true, message = "Asset value cannot be negative")
-        BigDecimal value,
-        @NotNull(message = "User id is required")
-        @Positive(message = "User id must be positive")
-        Long userId) {
+        BigDecimal value) {
 }

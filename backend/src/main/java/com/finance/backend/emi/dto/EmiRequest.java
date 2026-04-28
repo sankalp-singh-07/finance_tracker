@@ -6,7 +6,6 @@ import java.time.LocalDate;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
 public record EmiRequest(
@@ -26,8 +25,5 @@ public record EmiRequest(
         @DecimalMin(value = "0.00", inclusive = true, message = "Interest rate cannot be negative")
         BigDecimal interestRate,
         @NotNull(message = "Start date is required")
-        LocalDate startDate,
-        @NotNull(message = "User id is required")
-        @Positive(message = "User id must be positive")
-        Long userId) {
+        LocalDate startDate) {
 }

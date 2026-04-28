@@ -29,8 +29,8 @@ public class BudgetService {
     private final FinanceTransactionService transactionService;
 
     @Transactional
-    public BudgetResponse setBudget(BudgetRequest request) {
-        Category category = categoryService.getAccessibleCategory(request.categoryId(), request.userId());
+    public BudgetResponse setBudget(Long userId, BudgetRequest request) {
+        Category category = categoryService.getAccessibleCategory(request.categoryId(), userId);
         if (category.getType() != TransactionType.EXPENSE) {
             throw new BadRequestException("Budgets can only be set for expense categories");
         }
@@ -38,11 +38,11 @@ public class BudgetService {
         parseMonth(request.month());
 
         Budget budget = budgetRepository.findByUserIdAndCategory_IdAndMonth(
-                        request.userId(),
+                        userId,
                         request.categoryId(),
                         request.month())
                 .orElseGet(() -> Budget.builder()
-                        .userId(request.userId())
+                        .userId(userId)
                         .category(category)
                         .month(request.month())
                         .build());

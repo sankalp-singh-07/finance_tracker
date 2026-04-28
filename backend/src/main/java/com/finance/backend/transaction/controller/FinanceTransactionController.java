@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,10 +13,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.finance.backend.auth.security.AuthenticatedUserPrincipal;
 import com.finance.backend.common.enums.TransactionType;
 import com.finance.backend.transaction.dto.TransactionRequest;
 import com.finance.backend.transaction.dto.TransactionResponse;
@@ -35,25 +36,27 @@ public class FinanceTransactionController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public TransactionResponse createTransaction(@Valid @RequestBody TransactionRequest request) {
-        return transactionService.createTransaction(request);
+    public TransactionResponse createTransaction(
+            @AuthenticationPrincipal AuthenticatedUserPrincipal currentUser,
+            @Valid @RequestBody TransactionRequest request) {
+        return transactionService.createTransaction(currentUser.getId(), request);
     }
 
     @GetMapping
     public List<TransactionResponse> getTransactions(
-            @RequestParam @Positive Long userId,
+            @AuthenticationPrincipal AuthenticatedUserPrincipal currentUser,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(required = false) @Positive Long categoryId,
             @RequestParam(required = false) TransactionType type) {
-        return transactionService.getTransactions(userId, startDate, endDate, categoryId, type);
+        return transactionService.getTransactions(currentUser.getId(), startDate, endDate, categoryId, type);
     }
 
     @DeleteMapping("/{transactionId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTransaction(
-            @PathVariable @Positive Long transactionId,
-            @RequestParam @Positive Long userId) {
-        transactionService.deleteTransaction(userId, transactionId);
+            @AuthenticationPrincipal AuthenticatedUserPrincipal currentUser,
+            @PathVariable @Positive Long transactionId) {
+        transactionService.deleteTransaction(currentUser.getId(), transactionId);
     }
 }

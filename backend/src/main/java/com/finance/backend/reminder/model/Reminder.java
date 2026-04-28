@@ -2,6 +2,7 @@ package com.finance.backend.reminder.model;
 
 import java.time.LocalDate;
 
+import com.finance.backend.auth.model.User;
 import com.finance.backend.common.enums.ReminderType;
 
 import jakarta.persistence.Column;
@@ -11,6 +12,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -41,6 +44,7 @@ public class Reminder {
     @Column(nullable = false, length = 20)
     private ReminderType type;
 
-    @Column(nullable = false)
-    private Long userId;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 }

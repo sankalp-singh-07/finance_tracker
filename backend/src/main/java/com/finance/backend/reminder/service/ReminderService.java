@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.finance.backend.auth.model.User;
 import com.finance.backend.reminder.dto.ReminderRequest;
 import com.finance.backend.reminder.dto.ReminderResponse;
 import com.finance.backend.reminder.model.Reminder;
@@ -20,12 +21,12 @@ public class ReminderService {
     private final ReminderRepository reminderRepository;
 
     @Transactional
-    public ReminderResponse createReminder(ReminderRequest request) {
+    public ReminderResponse createReminder(Long userId, ReminderRequest request) {
         Reminder reminder = Reminder.builder()
                 .title(request.title().trim())
                 .dueDate(request.dueDate())
                 .type(request.type())
-                .userId(request.userId())
+                .user(User.builder().id(userId).build())
                 .build();
         return mapToResponse(reminderRepository.save(reminder));
     }
@@ -33,7 +34,7 @@ public class ReminderService {
     @Transactional(readOnly = true)
     public List<ReminderResponse> getUpcomingReminders(Long userId, Integer daysAhead) {
         int window = daysAhead == null ? 30 : daysAhead;
-        return reminderRepository.findByUserIdAndDueDateBetweenOrderByDueDateAsc(
+        return reminderRepository.findByUser_IdAndDueDateBetweenOrderByDueDateAsc(
                         userId,
                         LocalDate.now(),
                         LocalDate.now().plusDays(window))
@@ -48,7 +49,7 @@ public class ReminderService {
                 .title(reminder.getTitle())
                 .dueDate(reminder.getDueDate())
                 .type(reminder.getType())
-                .userId(reminder.getUserId())
+                .userId(reminder.getUser().getId())
                 .build();
     }
 }

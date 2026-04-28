@@ -22,21 +22,21 @@ public class AssetService {
     private final AssetRepository assetRepository;
 
     @Transactional
-    public AssetResponse createAsset(AssetRequest request) {
+    public AssetResponse createAsset(Long userId, AssetRequest request) {
         Asset asset = Asset.builder()
                 .name(request.name().trim())
                 .type(request.type())
                 .value(request.value())
                 .lastUpdated(LocalDateTime.now())
-                .userId(request.userId())
+                .userId(userId)
                 .build();
 
         return mapToResponse(assetRepository.save(asset));
     }
 
     @Transactional
-    public AssetResponse updateAssetValue(Long assetId, AssetUpdateRequest request) {
-        Asset asset = assetRepository.findByIdAndUserId(assetId, request.userId())
+    public AssetResponse updateAssetValue(Long userId, Long assetId, AssetUpdateRequest request) {
+        Asset asset = assetRepository.findByIdAndUserId(assetId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Asset not found for user"));
 
         asset.setValue(request.value());

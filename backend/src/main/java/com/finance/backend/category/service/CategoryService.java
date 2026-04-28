@@ -21,12 +21,12 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
 
     @Transactional
-    public CategoryResponse createCategory(CategoryRequest request) {
+    public CategoryResponse createCategory(Long userId, CategoryRequest request) {
         String normalizedName = request.name().trim();
         boolean alreadyExists = categoryRepository.existsByNameIgnoreCaseAndTypeAndUserId(
                 normalizedName,
                 request.type(),
-                request.userId());
+                userId);
         if (alreadyExists || categoryRepository.existsByNameIgnoreCaseAndTypeAndDefaultCategoryTrue(normalizedName, request.type())) {
             throw new BadRequestException("Category already exists for the requested type");
         }
@@ -34,7 +34,7 @@ public class CategoryService {
         Category category = Category.builder()
                 .name(normalizedName)
                 .type(request.type())
-                .userId(request.userId())
+                .userId(userId)
                 .defaultCategory(false)
                 .build();
 

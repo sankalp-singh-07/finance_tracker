@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.finance.backend.auth.model.User;
 import com.finance.backend.category.model.Category;
 import com.finance.backend.common.enums.TransactionType;
 import com.finance.backend.tag.model.Tag;
@@ -41,8 +42,9 @@ public class FinanceTransaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal amount;

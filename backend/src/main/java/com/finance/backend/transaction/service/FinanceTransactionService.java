@@ -10,6 +10,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.finance.backend.auth.model.User;
 import com.finance.backend.category.dto.CategoryResponse;
 import com.finance.backend.category.model.Category;
 import com.finance.backend.category.service.CategoryService;
@@ -36,14 +37,14 @@ public class FinanceTransactionService {
     private final TagService tagService;
 
     @Transactional
-    public TransactionResponse createTransaction(TransactionRequest request) {
-        Category category = categoryService.getAccessibleCategory(request.categoryId(), request.userId());
+    public TransactionResponse createTransaction(Long userId, TransactionRequest request) {
+        Category category = categoryService.getAccessibleCategory(request.categoryId(), userId);
         validateTransactionType(category, request.type());
 
-        List<Tag> tags = tagService.getTagsForUser(request.userId(), request.tagIds());
+        List<Tag> tags = tagService.getTagsForUser(userId, request.tagIds());
 
         FinanceTransaction transaction = FinanceTransaction.builder()
-                .userId(request.userId())
+                .user(User.builder().id(userId).build())
                 .amount(request.amount())
                 .type(request.type())
                 .category(category)
@@ -82,11 +83,8 @@ public class FinanceTransactionService {
 
     @Transactional
     public void deleteTransaction(Long userId, Long transactionId) {
-        FinanceTransaction transaction = transactionRepository.findById(transactionId)
-                .orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
-        if (!transaction.getUserId().equals(userId)) {
-            throw new ResourceNotFoundException("Transaction not found for user");
-        }
+        FinanceTransaction transaction = transactionRepository.findByIdAndUser_Id(transactionId, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Transaction not found for user"));
         transactionRepository.delete(transaction);
     }
 
@@ -102,7 +100,7 @@ public class FinanceTransactionService {
 
     @Transactional(readOnly = true)
     public List<FinanceTransaction> getExpenseTransactions(Long userId, LocalDate startDate, LocalDate endDate) {
-        return transactionRepository.findByUserIdAndTypeAndDateBetween(userId, TransactionType.EXPENSE, startDate, endDate);
+        return transactionRepository.findByUser_IdAndTypeAndDateBetween(userId, TransactionType.EXPENSE, startDate, endDate);
     }
 
     private void validateTransactionType(Category category, TransactionType transactionType) {
@@ -116,7 +114,7 @@ public class FinanceTransactionService {
             query.distinct(true);
             root.fetch("category", JoinType.LEFT);
             root.fetch("tags", JoinType.LEFT);
-            return criteriaBuilder.equal(root.get("userId"), userId);
+            return criteriaBuilder.equal(root.get("user").get("id"), userId);
         };
     }
 
@@ -158,13 +156,13 @@ public class FinanceTransactionService {
                 .map(tag -> TagResponse.builder()
                         .id(tag.getId())
                         .name(tag.getName())
-                        .userId(tag.getUserId())
+                        .userId(tag.getUser().getId())
                         .build())
                 .toList();
 
         return TransactionResponse.builder()
                 .id(transaction.getId())
-                .userId(transaction.getUserId())
+                .userId(transaction.getUser().getId())
                 .amount(transaction.getAmount())
                 .type(transaction.getType())
                 .category(categoryResponse)

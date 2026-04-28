@@ -9,9 +9,6 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 
 public record BudgetRequest(
-        @NotNull(message = "User id is required")
-        @Positive(message = "User id must be positive")
-        Long userId,
         @NotNull(message = "Category id is required")
         @Positive(message = "Category id must be positive")
         Long categoryId,

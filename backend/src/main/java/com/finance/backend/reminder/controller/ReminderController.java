@@ -3,6 +3,7 @@ package com.finance.backend.reminder.controller;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.finance.backend.auth.security.AuthenticatedUserPrincipal;
 import com.finance.backend.reminder.dto.ReminderRequest;
 import com.finance.backend.reminder.dto.ReminderResponse;
 import com.finance.backend.reminder.service.ReminderService;
@@ -30,14 +32,16 @@ public class ReminderController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ReminderResponse createReminder(@Valid @RequestBody ReminderRequest request) {
-        return reminderService.createReminder(request);
+    public ReminderResponse createReminder(
+            @AuthenticationPrincipal AuthenticatedUserPrincipal currentUser,
+            @Valid @RequestBody ReminderRequest request) {
+        return reminderService.createReminder(currentUser.getId(), request);
     }
 
     @GetMapping("/upcoming")
     public List<ReminderResponse> getUpcomingReminders(
-            @RequestParam @Positive Long userId,
+            @AuthenticationPrincipal AuthenticatedUserPrincipal currentUser,
             @RequestParam(required = false) @Positive Integer daysAhead) {
-        return reminderService.getUpcomingReminders(userId, daysAhead);
+        return reminderService.getUpcomingReminders(currentUser.getId(), daysAhead);
     }
 }

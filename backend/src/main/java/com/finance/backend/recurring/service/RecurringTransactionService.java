@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.finance.backend.auth.model.User;
 import com.finance.backend.category.dto.CategoryResponse;
 import com.finance.backend.category.model.Category;
 import com.finance.backend.category.service.CategoryService;
@@ -31,8 +32,8 @@ public class RecurringTransactionService {
     private final FinanceTransactionService transactionService;
 
     @Transactional
-    public RecurringTransactionResponse createRecurringTransaction(RecurringTransactionRequest request) {
-        Category category = categoryService.getAccessibleCategory(request.categoryId(), request.userId());
+    public RecurringTransactionResponse createRecurringTransaction(Long userId, RecurringTransactionRequest request) {
+        Category category = categoryService.getAccessibleCategory(request.categoryId(), userId);
 
         RecurringTransaction recurringTransaction = RecurringTransaction.builder()
                 .amount(request.amount())
@@ -40,7 +41,7 @@ public class RecurringTransactionService {
                 .frequency(request.frequency())
                 .nextExecutionDate(request.nextExecutionDate())
                 .note(request.note() == null ? null : request.note().trim())
-                .userId(request.userId())
+                .user(User.builder().id(userId).build())
                 .build();
 
         return mapToResponse(recurringTransactionRepository.save(recurringTransaction));
@@ -48,28 +49,27 @@ public class RecurringTransactionService {
 
     @Transactional(readOnly = true)
     public List<RecurringTransactionResponse> getRecurringTransactions(Long userId) {
-        return recurringTransactionRepository.findByUserIdOrderByNextExecutionDateAsc(userId).stream()
+        return recurringTransactionRepository.findByUser_IdOrderByNextExecutionDateAsc(userId).stream()
                 .map(this::mapToResponse)
                 .toList();
     }
 
     @Transactional
-    public List<TransactionResponse> generateTransactions(RecurringGenerationRequest request) {
+    public List<TransactionResponse> generateTransactions(Long userId, RecurringGenerationRequest request) {
         List<RecurringTransaction> recurringTransactions = recurringTransactionRepository
-                .findByUserIdAndNextExecutionDateLessThanEqualOrderByNextExecutionDateAsc(request.userId(), request.asOfDate());
+                .findByUser_IdAndNextExecutionDateLessThanEqualOrderByNextExecutionDateAsc(userId, request.asOfDate());
 
         List<TransactionResponse> generatedTransactions = new ArrayList<>();
         for (RecurringTransaction recurringTransaction : recurringTransactions) {
             while (!recurringTransaction.getNextExecutionDate().isAfter(request.asOfDate())) {
                 TransactionRequest transactionRequest = new TransactionRequest(
-                        recurringTransaction.getUserId(),
                         recurringTransaction.getAmount(),
                         recurringTransaction.getCategory().getType(),
                         recurringTransaction.getCategory().getId(),
                         List.of(),
                         recurringTransaction.getNextExecutionDate(),
                         recurringTransaction.getNote());
-                generatedTransactions.add(transactionService.createTransaction(transactionRequest));
+                generatedTransactions.add(transactionService.createTransaction(userId, transactionRequest));
                 recurringTransaction.setNextExecutionDate(getNextExecutionDate(
                         recurringTransaction.getNextExecutionDate(),
                         recurringTransaction.getFrequency()));
@@ -104,7 +104,7 @@ public class RecurringTransactionService {
                 .frequency(recurringTransaction.getFrequency())
                 .nextExecutionDate(recurringTransaction.getNextExecutionDate())
                 .note(recurringTransaction.getNote())
-                .userId(recurringTransaction.getUserId())
+                .userId(recurringTransaction.getUser().getId())
                 .build();
     }
 }

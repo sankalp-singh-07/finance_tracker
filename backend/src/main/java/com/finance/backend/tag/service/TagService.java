@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.finance.backend.auth.model.User;
 import com.finance.backend.common.exception.BadRequestException;
 import com.finance.backend.common.exception.ResourceNotFoundException;
 import com.finance.backend.tag.dto.TagRequest;
@@ -22,15 +23,15 @@ public class TagService {
     private final TagRepository tagRepository;
 
     @Transactional
-    public TagResponse createTag(TagRequest request) {
+    public TagResponse createTag(Long userId, TagRequest request) {
         String normalizedName = request.name().trim();
-        if (tagRepository.existsByUserIdAndNameIgnoreCase(request.userId(), normalizedName)) {
+        if (tagRepository.existsByUser_IdAndNameIgnoreCase(userId, normalizedName)) {
             throw new BadRequestException("Tag already exists for user");
         }
 
         Tag tag = Tag.builder()
                 .name(normalizedName)
-                .userId(request.userId())
+                .user(User.builder().id(userId).build())
                 .build();
 
         return mapToResponse(tagRepository.save(tag));
@@ -38,7 +39,7 @@ public class TagService {
 
     @Transactional(readOnly = true)
     public List<TagResponse> getTags(Long userId) {
-        return tagRepository.findByUserIdOrderByNameAsc(userId).stream()
+        return tagRepository.findByUser_IdOrderByNameAsc(userId).stream()
                 .map(this::mapToResponse)
                 .toList();
     }
@@ -49,7 +50,7 @@ public class TagService {
             return Collections.emptyList();
         }
 
-        List<Tag> tags = tagRepository.findByUserIdAndIdIn(userId, tagIds);
+        List<Tag> tags = tagRepository.findByUser_IdAndIdIn(userId, tagIds);
         if (tags.size() != tagIds.size()) {
             throw new ResourceNotFoundException("One or more tags do not belong to the user");
         }
@@ -60,7 +61,7 @@ public class TagService {
         return TagResponse.builder()
                 .id(tag.getId())
                 .name(tag.getName())
-                .userId(tag.getUserId())
+                .userId(tag.getUser().getId())
                 .build();
     }
 }

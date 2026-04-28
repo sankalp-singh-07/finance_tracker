@@ -9,5 +9,5 @@ import com.finance.backend.reminder.model.Reminder;
 
 public interface ReminderRepository extends JpaRepository<Reminder, Long> {
 
-    List<Reminder> findByUserIdAndDueDateBetweenOrderByDueDateAsc(Long userId, LocalDate startDate, LocalDate endDate);
+    List<Reminder> findByUser_IdAndDueDateBetweenOrderByDueDateAsc(Long userId, LocalDate startDate, LocalDate endDate);
 }

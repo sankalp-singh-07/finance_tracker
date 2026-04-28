@@ -9,7 +9,7 @@ import com.finance.backend.recurring.model.RecurringTransaction;
 
 public interface RecurringTransactionRepository extends JpaRepository<RecurringTransaction, Long> {
 
-    List<RecurringTransaction> findByUserIdOrderByNextExecutionDateAsc(Long userId);
+    List<RecurringTransaction> findByUser_IdOrderByNextExecutionDateAsc(Long userId);
 
-    List<RecurringTransaction> findByUserIdAndNextExecutionDateLessThanEqualOrderByNextExecutionDateAsc(Long userId, LocalDate asOfDate);
+    List<RecurringTransaction> findByUser_IdAndNextExecutionDateLessThanEqualOrderByNextExecutionDateAsc(Long userId, LocalDate asOfDate);
 }

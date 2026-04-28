@@ -22,8 +22,5 @@ public record RecurringTransactionRequest(
         @NotNull(message = "Next execution date is required")
         LocalDate nextExecutionDate,
         @Size(max = 500, message = "Note can have at most 500 characters")
-        String note,
-        @NotNull(message = "User id is required")
-        @Positive(message = "User id must be positive")
-        Long userId) {
+        String note) {
 }
