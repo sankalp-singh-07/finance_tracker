@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
+import com.finance.backend.analytics.dto.AnalyticsSummaryResponse;
 import com.finance.backend.analytics.dto.FinancialHealthScoreResponse;
 import com.finance.backend.analytics.dto.MonthlySummaryResponse;
 import com.finance.backend.analytics.service.AnalyticsService;
@@ -16,12 +17,19 @@ import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/analytics")
+@RequestMapping({"/api/analytics", "/api/v1/analytics"})
 @Validated
 @RequiredArgsConstructor
 public class AnalyticsController {
 
     private final AnalyticsService analyticsService;
+
+    @GetMapping("/summary")
+    public AnalyticsSummaryResponse getSummary(
+            @AuthenticationPrincipal AuthenticatedUserPrincipal currentUser,
+            @RequestParam(required = false) @Pattern(regexp = "^\\d{4}-\\d{2}$") String month) {
+        return analyticsService.getSummary(currentUser.getId(), month);
+    }
 
     @GetMapping("/monthly-summary")
     public MonthlySummaryResponse getMonthlySummary(
