@@ -360,6 +360,17 @@ export default function App() {
             for quick daily decisions.
           </p>
         </div>
+
+        <div className="auth-proof">
+          <div>
+            <strong>₹2.1L</strong>
+            <span>net worth tracked</span>
+          </div>
+          <div>
+            <strong>72/100</strong>
+            <span>health score</span>
+          </div>
+        </div>
       </section>
 
       {authView === "login" ? (
