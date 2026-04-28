@@ -1,6 +1,9 @@
 # macOS
 .DS_Store
 
+# IntelliJ
+.idea/
+
 # Node
 node_modules/
 dist/
